@@ -13,7 +13,7 @@ class wgGesucht(scrapy.Spider):
         # url = 'https://www.wg-gesucht.de/wohnungen-in-Berlin-Friedrichshain.6401013.html'
         # using local file, hardcoded
         # TODO: refactor to maybe get the html file from a given relative path
-        url = 'file:///Users/danroc/Documents/Projects/@techlabs/data-scraping/html/wohnungen-in-Berlin-Kreuzberg.4058192.html'
+        url = 'file:///Users/danroc/Documents/Projects/@techlabs/data-scraping/html/wohnungen-in-Berlin-Steglitz.7453024.html'
         yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
@@ -42,7 +42,7 @@ class wgGesucht(scrapy.Spider):
         # offer['costs'] = dict()
         for row in costs_rows:
             # TODO: keys are in German, do we want to translate to English?
-            key = row.xpath('./td[1]/text()').extract_first().strip()
+            key = row.xpath('./td[1]/text()').extract_first().strip().replace(':', '')
             if len(key) > 0:
                 value = row.xpath('./td[2]/b/text()').extract_first()
                 if value != 'n.a.':
@@ -97,12 +97,12 @@ class wgGesucht(scrapy.Spider):
             '//div[contains(@id, "freitext")]')
         keys = ["Wohnung", "Lage", "X", "Sonstiges"] # TODO: figure out if X is something
         for div in description_divs:
-            text = div.xpath('./p[1]//text()').extract_first()
-            if text:
+            text_list = div.xpath('./p[1]//text()').extract()
+            if len(text_list) > 0:
                 # get the title based on the last number of the div id ("freitext_01", for ex)
                 div_id = div.xpath('./@id').extract_first()
                 title = keys[int(div_id[-1])]
-                offer[title] = text.strip()
+                offer[title] = ' '.join(text_list).strip()
         # append to final list
         offers_list.append(offer)
 
