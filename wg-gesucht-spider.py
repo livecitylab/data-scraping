@@ -123,9 +123,10 @@ process.start()
 
 # writing JSON object
 now = str(datetime.now())
-with open('./data/'+now+'_offers.json', 'w') as f:
+with open('./data/'+now+'_wg-gesucht.json', 'w') as f:
     json.dump(offers_list, f)
 
+# writing excel and csv
 df = pd.DataFrame(offers_list)
-df.to_csv('./data/'+now+'_offers.csv')
-df.to_excel('./data/'+now+'_offers.xlsx')
+df.to_csv('./data/'+now+'_wg-gesucht.csv')
+df.to_excel('./data/'+now+'_wg-gesucht.xlsx')
