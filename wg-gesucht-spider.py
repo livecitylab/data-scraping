@@ -7,7 +7,7 @@ from scrapy.crawler import CrawlerProcess
 
 
 class wgGesucht(scrapy.Spider):
-
+    '''Crawls the first page of WG-Gesucht, then all they offers it find and get all rent data'''
     name = "dc_chapter_spider"
 
     def start_requests(self):
