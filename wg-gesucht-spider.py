@@ -48,7 +48,7 @@ class wgGesucht(scrapy.Spider):
         # offer['costs'] = dict()
         for row in costs_rows:
             # TODO: keys are in German, do we want to translate to English?
-            key = row.xpath('./td[1]/text()').extract_first().strip()
+            key = row.xpath('./td[1]/text()').extract_first().strip().replace(':', '')
             if len(key) > 0:
                 value = row.xpath('./td[2]/b/text()').extract_first()
                 if value != 'n.a.':
