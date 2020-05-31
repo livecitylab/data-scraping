@@ -103,12 +103,12 @@ class wgGesucht(scrapy.Spider):
             '//div[contains(@id, "freitext")]')
         keys = ["Wohnung", "Lage", "X", "Sonstiges"]  # TODO: figure out if X is something
         for div in description_divs:
-            text = div.xpath('./p[1]//text()').extract_first()
-            if text:
+            text_list = div.xpath('./p[1]//text()').extract()
+            if len(text_list) > 0:
                 # get the title based on the last number of the div id ("freitext_01", for ex)
                 div_id = div.xpath('./@id').extract_first()
                 title = keys[int(div_id[-1])]
-                offer[title] = text.strip()
+                offer[title] = ' '.join(text_list).strip()
         # append to final list
         offers_list.append(offer)
 
