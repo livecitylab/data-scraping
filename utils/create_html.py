@@ -24,7 +24,7 @@ class htmlSpider(scrapy.Spider):
 
     def parse(self, response):
         # write out the html
-        html_file = "./html/immowelt-expose-2vekd44.html"
+        html_file = "html/immowelt/immowelt-expose-2vekd44.html"
         with open(html_file, 'wb') as fout:
             fout.write(response.body)
 
