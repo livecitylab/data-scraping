@@ -1,32 +1,90 @@
-# import pandas as pd
-# import re
+# from scrapy_selenium import SeleniumRequest
+import time
+
+from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
 import scrapy
-# import json
-# from datetime import datetime
+from webdriver_manager.chrome import ChromeDriverManager
 from scrapy.crawler import CrawlerProcess
 
-class wgGesucht(scrapy.Spider):
-    '''Crawls the first page of WG-Gesucht, then all they offers it find and get all rent data'''
-    name = "dc_chapter_spider"
+class immoweltApiSpider(scrapy.Spider):
+    name = 'immoweltSpider'
+
+    def __init__(self, js=False, **kwargs):
+        super().__init__(**kwargs)
+        self.js = js
+        self.driver = webdriver.Chrome(ChromeDriverManager().install())
+
+    @staticmethod
+    def get_selenium_response(driver, url, num_ids):
+        '''Because Immowelt uses lazy-loading as you scroll to show all offers,
+        this method first scrolls to the bottom of the page, then waits 5 seconds and checks if all offer ids are loaded,
+        before passing the response back to scrapy'''
+
+        driver.get(url)
+        try:
+            def scroll_down(driver):
+                """A method for scrolling the page."""
+                # Get scroll height.
+                last_height = driver.execute_script("return document.body.scrollHeight")
+                while True:
+                    # Scroll down to the bottom.
+                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    # Wait to load the page.
+                    time.sleep(2)
+                    # Calculate new scroll height and compare with last scroll height.
+                    new_height = driver.execute_script("return document.body.scrollHeight")
+                    if new_height == last_height:
+                        break
+                    last_height = new_height
+
+            def find(driver):
+                '''Check if all offers are loaded'''
+                iw_items = driver.find_elements_by_class_name('listitem_wrap')
+                if len(iw_items) == num_ids:
+                    return iw_items
+                else:
+                    return False
+
+            # first, scroll down
+            scroll_down(driver)
+            # then wait 5 seconds and check for the offers
+            element = WebDriverWait(driver, 5).until(find)
+            # if all ok, return response
+            return driver.page_source.encode('utf-8')
+        except:
+            driver.quit()
 
     def start_requests(self):
-        # url = 'https://www.wg-gesucht.de/wohnungen-in-Berlin.8.2.1.1.html?category=2&city_id=8&rent_type=0&img=1&rent_types%5B0%5D=0'
-        filename = 'immowelt-home-berlin-aktuellste'
-        url = 'file:///Users/danroc/Documents/Projects/@techlabs/data-scraping/html/'+filename+'.html'
-        yield scrapy.Request(url=url, callback=self.parse_home)
+        urls = ['https://www.immowelt.de/liste/berlin/wohnungen/mieten?sort=createdate%2Bdesc']
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse)
 
-    def parse_home(self, response):
-        iw_lists = response.css('div.iw_list_content')
-        iw_items = [i.css('div.listitem_wrap') for i in iw_lists]
-        print(len(iw_items))
+    def parse(self, response):
+        # in the Immowelt page there is a hidden input field with the values of all ids to be displayed in the page
+        # we use these values to determine how many offers should be displayed on the page, after all lazy-loading is done.
+        estateIds = response.xpath('//input[@id="estateIds"]/@value').extract_first().split(',')
+        num_estateIds = len(estateIds)
+        # then we load the page with selenium
+        first_response = response
+        response = scrapy.Selector(
+            text=self.get_selenium_response(self.driver, response.url, num_estateIds))
 
-        # offers = response.css('div.offer_list_item')
-        # links = offers.xpath('//h3/a/@href').extract()
-        # for url in links:
-        #     if not url.startswith("http"):
-        #         yield response.follow(url=url, callback=self.parse_pages)
+        # get all offer divs
+        offer_divs = response.css('div.listitem_wrap')
+        for offer_div in offer_divs:
+            estateId = offer_div.xpath('./@data-estateid').extract_first()
+            url = offer_div.css('div.listitem > a::attr(href)').extract_first()
+            yield first_response.follow(url=url, callback=self.parse_offer, meta={'estateId':estateId})
 
-# offers_list = []
+    def parse_offer(self, response):
+        # TODO: copy single page code
+        pass
+
+
+
+
+
 process = CrawlerProcess()
-process.crawl(wgGesucht)
+process.crawl(immoweltApiSpider, js = True)
 process.start()
