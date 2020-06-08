@@ -8,7 +8,7 @@ import re  # regex
 import scrapy
 from scrapy.crawler import CrawlerProcess
 
-PATH = "file:///Users/danroc/Documents/Projects/@techlabs/data-scraping/html/"
+PATH = "file:///Users/danroc/Documents/Projects/@techlabs/data-scraping/html/immowelt/"
 setlocale(LC_NUMERIC, 'de_DE')
 
 class immowelt(scrapy.Spider):
@@ -20,7 +20,7 @@ class immowelt(scrapy.Spider):
         # url = 'https://www.wg-gesucht.de/wohnungen-in-Berlin-Friedrichshain.6401013.html'
         # using local file, hardcoded
         # TODO: refactor to maybe get the html file from a given relative path
-        os.chdir('/Users/danroc/Documents/Projects/@techlabs/data-scraping/html/')
+        os.chdir('/Users/danroc/Documents/Projects/@techlabs/data-scraping/html/immowelt/')
         files = glob.glob('immowelt-expose*.html')
         url = PATH + files[2]
         yield scrapy.Request(url=url, callback=self.parse)
@@ -141,7 +141,7 @@ process.start()
 for offer in offers_list:
     print(json.dumps(offer, indent=4))
 
-os.chdir('/Users/danroc/Documents/Projects/@techlabs/data-scraping/data/')
+os.chdir('/Users/danroc/Documents/Projects/@techlabs/data-scraping/data/immowelt')
 
 # writing JSON object
 now = str(datetime.now())
