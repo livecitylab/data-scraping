@@ -8,7 +8,7 @@ from scrapy.crawler import CrawlerProcess
 
 class wgGesucht(scrapy.Spider):
     '''Crawls the first page of WG-Gesucht, then all they offers it find and get all rent data'''
-    name = "dc_chapter_spider"
+    name = "wg-gesucht"
 
     def start_requests(self):
         url = 'https://www.wg-gesucht.de/wohnungen-in-Berlin.8.2.1.0.html'
