@@ -19,7 +19,7 @@ class immoscout(scrapy.Spider):
     def start_requests(self):
         # using local file, hardcoded
         # TODO: refactor to maybe get the html file from a given relative path
-        os.chdir('/Users/danroc/Documents/Projects/@techlabs/data-scraping/html/immoscout/')
+        os.chdir('/data-scraping/html/immoscout/')
         files = glob.glob('immoscout-expose-*.html')
         # url = PATH + files[4]
         # yield scrapy.Request(url=url, callback=self.parse)
@@ -96,7 +96,7 @@ process.start()
 for offer in offers_list:
     print(json.dumps(offer, indent=4))
 
-os.chdir('/Users/danroc/Documents/Projects/@techlabs/data-scraping/data/immoscout')
+os.chdir('/data-scraping/data/immoscout')
 
 # writing JSON object
 now = str(datetime.now())

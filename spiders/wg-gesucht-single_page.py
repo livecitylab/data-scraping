@@ -7,7 +7,7 @@ from scrapy.crawler import CrawlerProcess
 class wgGesucht(scrapy.Spider):
     '''Local development mode: uses a downloaded HTML file to avoid hitting the servers every time'''
 
-    name = "dc_chapter_spider"
+    name = "wgGesucht"
 
     def start_requests(self):
         # url = 'https://www.wg-gesucht.de/wohnungen-in-Berlin-Friedrichshain.6401013.html'
